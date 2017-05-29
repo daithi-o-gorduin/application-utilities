@@ -94,4 +94,35 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
       }
     }
   }
+
+  "decryptUrlIntoType" should {
+    "return an Ok" when {
+      "decryption was successful" in {
+        val result = testParsers.decryptUrlIntoType[TestModel](testEncModel)(TestModel.standardFormat) { model =>
+          okFunction(model)
+        }
+
+        status(result) mustBe OK
+        contentAsJson(result) mustBe Json.parse(
+          s"""{
+             | "string":"testString",
+             | "int":616,
+             | "dateTime":{
+             |   "$date":${now.getMillis}
+             | }
+             |}""".stripMargin
+        )
+      }
+    }
+
+    "return a bad request" when {
+      "there was a problem decrpyting the url" in {
+        val result = testParsers.decryptUrlIntoType[TestModel]("invalid_string")(TestModel.standardFormat) { model =>
+          okFunction(model)
+        }
+
+        status(result) mustBe BAD_REQUEST
+      }
+    }
+  }
 }

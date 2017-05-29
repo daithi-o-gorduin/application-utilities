@@ -39,4 +39,12 @@ trait RequestParsers {
       case Failure(_)           => Future.successful(BadRequest)
     }
   }
+
+  def decryptUrlIntoType[T](enc: String)(reads: Reads[T])(f: T => Future[Result]): Future[Result] = {
+    Try(DataSecurity.decryptIntoType[T](enc)(reads)) match {
+      case Success(Some(data))  => f(data)
+      case Success(None)        => Future.successful(BadRequest)
+      case Failure(_)           => Future.successful(BadRequest)
+    }
+  }
 }
