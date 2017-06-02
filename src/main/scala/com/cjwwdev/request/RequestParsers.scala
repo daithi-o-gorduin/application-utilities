@@ -15,6 +15,7 @@
 // limitations under the License.
 package com.cjwwdev.request
 
+import com.cjwwdev.logging.Logger
 import com.cjwwdev.security.encryption.DataSecurity
 import play.api.libs.json.Reads
 import play.api.mvc.{Request, Result}
@@ -27,24 +28,36 @@ trait RequestParsers {
   def decryptRequest[T](reads: Reads[T])(f: T => Future[Result])(implicit request: Request[String]): Future[Result] = {
     Try(DataSecurity.decryptIntoType[T](request.body)(reads)) match {
       case Success(Some(data))  => f(data)
-      case Success(None)        => Future.successful(BadRequest)
-      case Failure(_)           => Future.successful(BadRequest)
+      case Success(None)        =>
+        Logger.warn(s"[RequestParsers] - [decryptRequest] - decryption returned none (${request.path})")
+        Future.successful(BadRequest)
+      case Failure(_)           =>
+        Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}")
+        Future.successful(BadRequest)
     }
   }
 
-  def decryptUrl(enc: String)(f: String => Future[Result]): Future[Result] = {
+  def decryptUrl(enc: String)(f: String => Future[Result])(implicit request: Request[_]): Future[Result] = {
     Try(DataSecurity.decryptString(enc)) match {
       case Success(Some(data))  => f(data)
-      case Success(None)        => Future.successful(BadRequest)
-      case Failure(_)           => Future.successful(BadRequest)
+      case Success(None)        =>
+        Logger.warn(s"[RequestParsers] - [decryptRequest] - decryption returned none (${request.path})")
+        Future.successful(BadRequest)
+      case Failure(_)           =>
+        Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}")
+        Future.successful(BadRequest)
     }
   }
 
-  def decryptUrlIntoType[T](enc: String)(reads: Reads[T])(f: T => Future[Result]): Future[Result] = {
+  def decryptUrlIntoType[T](enc: String)(reads: Reads[T])(f: T => Future[Result])(implicit request: Request[_]): Future[Result] = {
     Try(DataSecurity.decryptIntoType[T](enc)(reads)) match {
       case Success(Some(data))  => f(data)
-      case Success(None)        => Future.successful(BadRequest)
-      case Failure(_)           => Future.successful(BadRequest)
+      case Success(None)        =>
+        Logger.warn(s"[RequestParsers] - [decryptRequest] - decryption returned none (${request.path})")
+        Future.successful(BadRequest)
+      case Failure(_)           =>
+        Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}")
+        Future.successful(BadRequest)
     }
   }
 }

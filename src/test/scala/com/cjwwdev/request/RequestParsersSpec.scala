@@ -75,6 +75,7 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
   "decryptUrl" should {
     "return an Ok" when {
       "decryption was successful" in {
+        implicit val request = FakeRequest()
         val result = testParsers.decryptUrl(testEncString) { str =>
           okFunction(str)
         }
@@ -86,6 +87,7 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
 
     "return a bad request" when {
       "there was a problem decrypting the url" in {
+        implicit val request = FakeRequest()
         val result = testParsers.decryptUrl("invalid_string") { str =>
           okFunction(str)
         }
@@ -98,6 +100,7 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
   "decryptUrlIntoType" should {
     "return an Ok" when {
       "decryption was successful" in {
+        implicit val request = FakeRequest()
         val result = testParsers.decryptUrlIntoType[TestModel](testEncModel)(TestModel.standardFormat) { model =>
           okFunction(model)
         }
@@ -117,6 +120,7 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
 
     "return a bad request" when {
       "there was a problem decrpyting the url" in {
+        implicit val request = FakeRequest()
         val result = testParsers.decryptUrlIntoType[TestModel]("invalid_string")(TestModel.standardFormat) { model =>
           okFunction(model)
         }
