@@ -13,7 +13,7 @@ organization := "com.cjww-dev.libs"
 
 libraryDependencies ++= Seq(
   "com.typesafe.play" % "play_2.11" % "2.5.15",
-  "com.cjww-dev.libs" % "data-security_2.11" % "1.1.0",
+  "com.cjww-dev.libs" % "data-security_2.11" % "1.2.0",
   "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.0"
 )
 
