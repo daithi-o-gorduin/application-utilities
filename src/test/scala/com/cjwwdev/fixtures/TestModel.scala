@@ -29,3 +29,12 @@ object TestModel extends JsonFormats[TestModel] {
     (__ \ "dateTime").format[DateTime](dateTimeRead)(dateTimeWrite)
   )(TestModel.apply, unlift(TestModel.unapply))
 }
+
+case class TestModelTwo(string: String, str: String)
+
+object TestModelTwo extends JsonFormats[TestModelTwo] {
+  override implicit val standardFormat: OFormat[TestModelTwo] = (
+    (__ \ "string").format[String] and
+    (__ \ "str").format[String]
+  )(TestModelTwo.apply, unlift(TestModelTwo.unapply))
+}

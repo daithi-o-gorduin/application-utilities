@@ -17,9 +17,9 @@ package com.cjwwdev.request
 
 import com.cjwwdev.logging.Logger
 import com.cjwwdev.security.encryption.DataSecurity
-import play.api.libs.json.Reads
+import play.api.libs.json.{JsError, JsSuccess, Json, Reads}
 import play.api.mvc.{Request, Result}
-import play.api.mvc.Results.BadRequest
+import play.api.mvc.Results.{BadRequest, InternalServerError}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
@@ -58,6 +58,16 @@ trait RequestParsers {
       case Failure(_)           =>
         Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}")
         Future.successful(BadRequest)
+    }
+  }
+
+  def withJsonBody[T](f: T => Future[Result])(implicit reads: Reads[T], manifest: Manifest[T], request: Request[_]): Future[Result] = {
+    DataSecurity.decryptString(request.body.toString) match {
+      case Some(stringJson) => Json.parse(stringJson).validate[T] match {
+        case JsSuccess(ting, _) => f(ting)
+        case JsError(errors)    => Future.successful(BadRequest(s"Invalid ${manifest.runtimeClass.getSimpleName} errors: $errors"))
+      }
+      case None => Future.successful(BadRequest)
     }
   }
 }

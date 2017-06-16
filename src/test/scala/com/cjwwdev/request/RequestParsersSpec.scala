@@ -15,7 +15,7 @@
 // limitations under the License.
 package com.cjwwdev.request
 
-import com.cjwwdev.fixtures.TestModel
+import com.cjwwdev.fixtures.{TestModel, TestModelTwo}
 import com.cjwwdev.security.encryption.DataSecurity
 import org.joda.time.{DateTime, DateTimeZone}
 import org.scalatestplus.play.PlaySpec
@@ -122,6 +122,51 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
       "there was a problem decrpyting the url" in {
         implicit val request = FakeRequest()
         val result = testParsers.decryptUrlIntoType[TestModel]("invalid_string")(TestModel.standardFormat) { model =>
+          okFunction(model)
+        }
+
+        status(result) mustBe BAD_REQUEST
+      }
+    }
+  }
+
+  "withJsonBody" should {
+    "return an ok" when {
+      "decryption and json reads are successful" in {
+        implicit val request = FakeRequest().withBody(testEncModel)
+
+        val result = testParsers.withJsonBody[TestModel] { model =>
+          okFunction(model)
+        }
+
+        status(result) mustBe OK
+        contentAsJson(result) mustBe Json.parse(
+          s"""{
+             | "string":"testString",
+             | "int":616,
+             | "dateTime":{
+             |   "$date":${now.getMillis}
+             | }
+             |}""".stripMargin
+        )
+      }
+    }
+
+    "return a bad request" when {
+      "decryption fails" in {
+        implicit val request = FakeRequest().withBody("invalid")
+
+        val result = testParsers.withJsonBody[TestModel] { model =>
+          okFunction(model)
+        }
+
+        status(result) mustBe BAD_REQUEST
+      }
+
+      "there are errors in validating the json" in {
+        implicit val request = FakeRequest().withBody(DataSecurity.encryptType[TestModelTwo](TestModelTwo("str", "str")).get)
+
+        val result = testParsers.withJsonBody[TestModel] { model =>
           okFunction(model)
         }
 
