@@ -33,7 +33,6 @@ class IdentifierValidationSpec extends PlaySpec {
     "return an Ok" when {
       "it has validated a context id" in {
         val id = s"context-${UUID.randomUUID}"
-        println(id)
         val result = testValidator.validateAs(testValidator.CONTEXT, id) {
           okFunction
         }
@@ -42,7 +41,6 @@ class IdentifierValidationSpec extends PlaySpec {
 
       "it has validated a session id" in {
         val id = s"session-${UUID.randomUUID}"
-        println(id)
         val result = testValidator.validateAs(testValidator.SESSION, id) {
           okFunction
         }
@@ -51,7 +49,6 @@ class IdentifierValidationSpec extends PlaySpec {
 
       "it has validated a feed item id" in {
         val id = s"feed-item-${UUID.randomUUID}"
-        println(id)
         val result = testValidator.validateAs(testValidator.FEED_ITEM, id) {
           okFunction
         }
@@ -60,7 +57,6 @@ class IdentifierValidationSpec extends PlaySpec {
 
       "it has validated a user id" in {
         val id = s"user-${UUID.randomUUID}"
-        println(id)
         val result = testValidator.validateAs(testValidator.USER, id) {
           okFunction
         }
@@ -69,7 +65,6 @@ class IdentifierValidationSpec extends PlaySpec {
 
       "it has validated a org-user id" in {
         val id = s"org-user-${UUID.randomUUID}"
-        println(id)
         val result = testValidator.validateAs(testValidator.ORG_USER, id) {
           okFunction
         }
@@ -78,7 +73,6 @@ class IdentifierValidationSpec extends PlaySpec {
 
       "it has validated a diag id" in {
         val id = s"diag-${UUID.randomUUID}"
-        println(id)
         val result = testValidator.validateAs(testValidator.DIAG, id) {
           okFunction
         }
@@ -87,7 +81,6 @@ class IdentifierValidationSpec extends PlaySpec {
 
       "it has validated a deversity id" in {
         val id = s"deversity-${UUID.randomUUID}"
-        println(id)
         val result = testValidator.validateAs(testValidator.DEVERSITY, id) {
           okFunction
         }
