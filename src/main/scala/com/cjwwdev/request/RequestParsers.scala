@@ -19,7 +19,7 @@ import com.cjwwdev.logging.Logger
 import com.cjwwdev.security.encryption.DataSecurity
 import play.api.libs.json.{JsError, JsSuccess, Json, Reads}
 import play.api.mvc.{Request, Result}
-import play.api.mvc.Results.{BadRequest, InternalServerError}
+import play.api.mvc.Results.BadRequest
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
