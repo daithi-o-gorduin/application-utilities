@@ -27,5 +27,6 @@ trait RegexPack {
   val lastNameRegex: Regex          = """^\w[A-Za-z-]{0,49}$""".r
   val hexadecimalColourRegex: Regex = """^#(?:[0-9a-fA-F]{3}){1,2}$""".r
   val urlRegex: Regex               = """https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)""".r
+  val passwordRegex: Regex          = """^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{10,}$""".r
   val defaultUrl                    = "/account-services/assets/images/background.jpg"
 }
