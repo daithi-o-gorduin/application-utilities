@@ -27,47 +27,40 @@ import scala.util.{Failure, Success, Try}
 trait RequestParsers {
   def decryptRequest[T](reads: Reads[T])(f: T => Future[Result])(implicit request: Request[String]): Future[Result] = {
     Try(DataSecurity.decryptIntoType[T](request.body)(reads)) match {
-      case Success(Some(data))  => f(data)
-      case Success(None)        =>
-        Logger.warn(s"[RequestParsers] - [decryptRequest] - decryption returned none (${request.path})")
-        Future.successful(BadRequest)
-      case Failure(_)           =>
-        Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}")
+      case Success(data)  => f(data)
+      case Failure(e)     =>
+        Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}", e)
         Future.successful(BadRequest)
     }
   }
 
   def decryptUrl(enc: String)(f: String => Future[Result])(implicit request: Request[_]): Future[Result] = {
     Try(DataSecurity.decryptString(enc)) match {
-      case Success(Some(data))  => f(data)
-      case Success(None)        =>
-        Logger.warn(s"[RequestParsers] - [decryptRequest] - decryption returned none (${request.path})")
-        Future.successful(BadRequest)
-      case Failure(_)           =>
-        Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}")
+      case Success(data)  => f(data)
+      case Failure(e)     =>
+        Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}", e)
         Future.successful(BadRequest)
     }
   }
 
   def decryptUrlIntoType[T](enc: String)(reads: Reads[T])(f: T => Future[Result])(implicit request: Request[_]): Future[Result] = {
     Try(DataSecurity.decryptIntoType[T](enc)(reads)) match {
-      case Success(Some(data))  => f(data)
-      case Success(None)        =>
-        Logger.warn(s"[RequestParsers] - [decryptRequest] - decryption returned none (${request.path})")
-        Future.successful(BadRequest)
-      case Failure(_)           =>
-        Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}")
+      case Success(data)  => f(data)
+      case Failure(e)     =>
+        Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}", e)
         Future.successful(BadRequest)
     }
   }
 
   def withJsonBody[T](f: T => Future[Result])(implicit reads: Reads[T], manifest: Manifest[T], request: Request[_]): Future[Result] = {
-    DataSecurity.decryptString(request.body.toString) match {
-      case Some(stringJson) => Json.parse(stringJson).validate[T] match {
+    Try(DataSecurity.decryptString(request.body.toString)) match {
+      case Success(data) => Json.parse(data).validate[T] match {
         case JsSuccess(ting, _) => f(ting)
         case JsError(errors)    => Future.successful(BadRequest(s"Invalid ${manifest.runtimeClass.getSimpleName} errors: $errors"))
       }
-      case None => Future.successful(BadRequest)
+      case Failure(e) =>
+        Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}", e)
+        Future.successful(BadRequest)
     }
   }
 }

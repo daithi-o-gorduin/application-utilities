@@ -32,12 +32,12 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
 
   val testParsers = new RequestParsers {}
 
-  val testEncString: String = DataSecurity.encryptString("testString").get
+  val testEncString: String = DataSecurity.encryptString("testString")
 
   val date = "$date"
   final val now = new DateTime(DateTimeZone.UTC)
   val testModel = TestModel("testString", 616, now)
-  val testEncModel: String = DataSecurity.encryptType[TestModel](testModel).get
+  val testEncModel: String = DataSecurity.encryptType[TestModel](testModel)
 
   def okFunction[T](data: T)(implicit format: Format[T]): Future[Result] = Future.successful(Ok(Json.toJson[T](data)))
 
@@ -164,7 +164,7 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
       }
 
       "there are errors in validating the json" in {
-        implicit val request = FakeRequest().withBody(DataSecurity.encryptType[TestModelTwo](TestModelTwo("str", "str")).get)
+        implicit val request = FakeRequest().withBody(DataSecurity.encryptType[TestModelTwo](TestModelTwo("str", "str")))
 
         val result = testParsers.withJsonBody[TestModel] { model =>
           okFunction(model)
