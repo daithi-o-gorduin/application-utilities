@@ -62,6 +62,34 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
     }
 
     "return a bad request" when {
+      "the decrypted json was invalid" in {
+        val testEncJson = DataSecurity.encryptType(Json.parse(
+          s"""{
+             | "string":"testString",
+             | "int":616
+             |}""".stripMargin
+        ))
+
+        implicit val request = FakeRequest().withBody[String](testEncJson)
+        val result = testParsers.decryptRequest[TestModel](TestModel.standardFormat) { model =>
+          okFunction(model)
+        }
+        status(result) mustBe BAD_REQUEST
+        contentAsJson(result) mustBe Json.parse(
+          """
+            |{
+            | "obj.dateTime":[
+            |   {
+            |     "msg":[
+            |       "error.path.missing"
+            |     ],
+            |     "args":[]
+            |   }
+            | ]
+            |}""".stripMargin
+        )
+      }
+
       "there was a problem decrypting the request" in {
         implicit val request = FakeRequest().withBody[String](testEncString)
         val result = testParsers.decryptRequest[TestModel](TestModel.standardFormat) { model =>

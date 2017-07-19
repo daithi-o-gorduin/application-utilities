@@ -27,8 +27,11 @@ import scala.util.{Failure, Success, Try}
 trait RequestParsers {
   def decryptRequest[T](reads: Reads[T])(f: T => Future[Result])(implicit request: Request[String]): Future[Result] = {
     Try(DataSecurity.decryptIntoType[T](request.body)(reads)) match {
-      case Success(data)  => f(data)
-      case Failure(_)     =>
+      case Success(result) => result match {
+        case JsSuccess(data, _) => f(data)
+        case errors: JsError    => Future.successful(BadRequest(JsError.toJson(errors)))
+      }
+      case Failure(_)      =>
         Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}")
         Future.successful(BadRequest)
     }
@@ -45,8 +48,11 @@ trait RequestParsers {
 
   def decryptUrlIntoType[T](enc: String)(reads: Reads[T])(f: T => Future[Result])(implicit request: Request[_]): Future[Result] = {
     Try(DataSecurity.decryptIntoType[T](enc)(reads)) match {
-      case Success(data)  => f(data)
-      case Failure(_)     =>
+      case Success(result) => result match {
+        case JsSuccess(data, _) => f(data)
+        case errors: JsError    => Future.successful(BadRequest(JsError.toJson(errors)))
+      }
+      case Failure(_) =>
         Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}")
         Future.successful(BadRequest)
     }
