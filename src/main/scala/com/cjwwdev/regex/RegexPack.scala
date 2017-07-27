@@ -21,10 +21,10 @@ trait RegexPack {
   val emailRegex: Regex             = """[A-Za-z0-9\-_.]{1,126}@[A-Za-z0-9\-_.]{1,126}""".r
   val userNameRegex: Regex          = """^\w[A-Za-z0-9]{0,10}$""".r
   val initialsRegex: Regex          = """^[A-Z]{1,5}$""".r
-  val locationRegex: Regex          = """^\w[A-Za-z-]{0,49}$""".r
-  val orgNameRegex: Regex           = """^\w[A-Za-z-]{0,49}$""".r
-  val firstNameRegex: Regex         = """^\w[A-Za-z]{0,29}$""".r
-  val lastNameRegex: Regex          = """^\w[A-Za-z-]{0,49}$""".r
+  val locationRegex: Regex          = """^\w[A-Za-z- ]{0,49}$""".r
+  val orgNameRegex: Regex           = """^\w[A-Za-z- ]{0,49}$""".r
+  val firstNameRegex: Regex         = """^\w[A-Za-z ]{0,29}$""".r
+  val lastNameRegex: Regex          = """^\w[A-Za-z- ]{0,49}$""".r
   val hexadecimalColourRegex: Regex = """^#(?:[0-9a-fA-F]{3}){1,2}$""".r
   val urlRegex: Regex               = """https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)""".r
   val passwordRegex: Regex          = """^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{10,}$""".r
