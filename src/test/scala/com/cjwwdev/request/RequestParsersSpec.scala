@@ -39,163 +39,77 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
   val testModel = TestModel("testString", 616, now)
   val testEncModel: String = DataSecurity.encryptType[TestModel](testModel)
 
+  val testInvalidEncModel = DataSecurity.encryptType(Json.parse(
+    """
+      |{
+      | "boolean" : true
+      |}
+    """.stripMargin
+  ))
+
   def okFunction[T](data: T)(implicit format: Format[T]): Future[Result] = Future.successful(Ok(Json.toJson[T](data)))
 
-  "decryptRequest" should {
-    "return an Ok" when {
-      "decrypting the request body was successful" in {
-        implicit val request = FakeRequest().withBody[String](testEncModel)
-        val result = testParsers.decryptRequest[TestModel](TestModel.standardFormat) { model =>
-          okFunction(model)
-        }
-        status(result) mustBe OK
-        contentAsJson(result) mustBe Json.parse(
-          s"""{
-            | "string":"testString",
-            | "int":616,
-            | "dateTime":{
-            |   "$date":${now.getMillis}
-            | }
-            |}""".stripMargin
-        )
-      }
-    }
-
-    "return a bad request" when {
-      "the decrypted json was invalid" in {
-        val testEncJson = DataSecurity.encryptType(Json.parse(
-          s"""{
-             | "string":"testString",
-             | "int":616
-             |}""".stripMargin
-        ))
-
-        implicit val request = FakeRequest().withBody[String](testEncJson)
-        val result = testParsers.decryptRequest[TestModel](TestModel.standardFormat) { model =>
-          okFunction(model)
-        }
-        status(result) mustBe BAD_REQUEST
-        contentAsJson(result) mustBe Json.parse(
-          """
-            |{
-            | "obj.dateTime":[
-            |   {
-            |     "msg":[
-            |       "error.path.missing"
-            |     ],
-            |     "args":[]
-            |   }
-            | ]
-            |}""".stripMargin
-        )
-      }
-
-      "there was a problem decrypting the request" in {
-        implicit val request = FakeRequest().withBody[String](testEncString)
-        val result = testParsers.decryptRequest[TestModel](TestModel.standardFormat) { model =>
-          okFunction(model)
-        }
-        status(result) mustBe BAD_REQUEST
-      }
-    }
-  }
-
-  "decryptUrl" should {
-    "return an Ok" when {
-      "decryption was successful" in {
-        implicit val request = FakeRequest()
-        val result = testParsers.decryptUrl(testEncString) { str =>
-          okFunction(str)
-        }
-
-        status(result) mustBe OK
-        contentAsString(result) mustBe """"testString""""
-      }
-    }
-
-    "return a bad request" when {
-      "there was a problem decrypting the url" in {
-        implicit val request = FakeRequest()
-        val result = testParsers.decryptUrl("invalid_string") { str =>
-          okFunction(str)
-        }
-
-        status(result) mustBe BAD_REQUEST
-      }
-    }
-  }
-
-  "decryptUrlIntoType" should {
-    "return an Ok" when {
-      "decryption was successful" in {
-        implicit val request = FakeRequest()
-        val result = testParsers.decryptUrlIntoType[TestModel](testEncModel)(TestModel.standardFormat) { model =>
-          okFunction(model)
-        }
-
-        status(result) mustBe OK
-        contentAsJson(result) mustBe Json.parse(
-          s"""{
-             | "string":"testString",
-             | "int":616,
-             | "dateTime":{
-             |   "$date":${now.getMillis}
-             | }
-             |}""".stripMargin
-        )
-      }
-    }
-
-    "return a bad request" when {
-      "there was a problem decrpyting the url" in {
-        implicit val request = FakeRequest()
-        val result = testParsers.decryptUrlIntoType[TestModel]("invalid_string")(TestModel.standardFormat) { model =>
-          okFunction(model)
-        }
-
-        status(result) mustBe BAD_REQUEST
-      }
-    }
-  }
-
   "withJsonBody" should {
-    "return an ok" when {
-      "decryption and json reads are successful" in {
-        implicit val request = FakeRequest().withBody(testEncModel)
+    "decrypt and parse the request body into a test model to return an OK" when {
+      "the reads for test model is implicitly passed" in {
+        implicit val request: FakeRequest[String] = FakeRequest().withBody(testEncModel)
 
-        val result = testParsers.withJsonBody[TestModel] { model =>
-          okFunction(model)
+        val result = testParsers.withJsonBody[TestModel] { data =>
+          okFunction[TestModel](data)
         }
 
         status(result) mustBe OK
-        contentAsJson(result) mustBe Json.parse(
-          s"""{
-             | "string":"testString",
-             | "int":616,
-             | "dateTime":{
-             |   "$date":${now.getMillis}
-             | }
-             |}""".stripMargin
-        )
+      }
+
+      "the reads for test model is explicitly passed to return an OK" in {
+        implicit val request: FakeRequest[String] = FakeRequest().withBody(testEncModel)
+
+        val result = testParsers.withJsonBody[TestModel](TestModel.standardFormat) { data =>
+          okFunction[TestModel](data)
+        }
+
+        status(result) mustBe OK
       }
     }
 
-    "return a bad request" when {
-      "decryption fails" in {
-        implicit val request = FakeRequest().withBody("invalid")
+    "decrypt the request but return a bad request since the Json doesn't fit the specified type" when {
+      "the reads for the type is implicitly passed" in {
+        implicit val request: FakeRequest[String] = FakeRequest().withBody(testInvalidEncModel)
 
-        val result = testParsers.withJsonBody[TestModel] { model =>
-          okFunction(model)
+        val result = testParsers.withJsonBody[TestModel] { data =>
+          okFunction[TestModel](data)
         }
 
         status(result) mustBe BAD_REQUEST
       }
 
-      "there are errors in validating the json" in {
-        implicit val request = FakeRequest().withBody(DataSecurity.encryptType[TestModelTwo](TestModelTwo("str", "str")))
+      "the reads for the type is explicitly passed" in {
+        implicit val request: FakeRequest[String] = FakeRequest().withBody(testInvalidEncModel)
 
-        val result = testParsers.withJsonBody[TestModel] { model =>
-          okFunction(model)
+        val result = testParsers.withJsonBody[TestModel](TestModel.standardFormat) { data =>
+          okFunction[TestModel](data)
+        }
+
+        status(result) mustBe BAD_REQUEST
+      }
+    }
+
+    "fail to decrypt the request as the encrypted string was invalid" when {
+      "the reads for the type is implicitly passed" in {
+        implicit val request: FakeRequest[String] = FakeRequest().withBody("INVALID_STRING")
+
+        val result = testParsers.withJsonBody[TestModel] { data =>
+          okFunction[TestModel](data)
+        }
+
+        status(result) mustBe BAD_REQUEST
+      }
+
+      "the reads for the type is explicitly passed" in {
+        implicit val request: FakeRequest[String] = FakeRequest().withBody("INVALID_STRING")
+
+        val result = testParsers.withJsonBody[TestModel](TestModel.standardFormat) { data =>
+          okFunction[TestModel](data)
         }
 
         status(result) mustBe BAD_REQUEST

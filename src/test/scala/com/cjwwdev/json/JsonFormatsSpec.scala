@@ -24,12 +24,12 @@ class JsonFormatsSpec extends PlaySpec with JsonFormats[TestModel] {
 
   override val standardFormat: OFormat[TestModel] = TestModel.standardFormat
 
-  final val now = new DateTime(DateTimeZone.UTC)
+  val now = new DateTime(DateTimeZone.UTC)
   val date = "$date"
 
   val testModel = TestModel(
-    string = "testString",
-    int = 616,
+    string   = "testString",
+    int      = 616,
     dateTime = now
   )
 

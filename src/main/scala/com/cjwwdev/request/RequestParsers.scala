@@ -25,11 +25,22 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 trait RequestParsers {
-  def decryptRequest[T](reads: Reads[T])(f: T => Future[Result])(implicit request: Request[String]): Future[Result] = {
-    Try(DataSecurity.decryptIntoType[T](request.body)(reads)) match {
-      case Success(result) => result match {
-        case JsSuccess(data, _) => f(data)
-        case errors: JsError    => Future.successful(BadRequest(JsError.toJson(errors)))
+
+  def withJsonBody[T](f: T => Future[Result])(implicit reads: Reads[T], request: Request[String]): Future[Result] = {
+    Try(DataSecurity.decryptString(request.body)) match {
+      case Success(result) => Json.parse(result).validate[T](reads) match {
+        case JsSuccess(t, _) => f(t)
+        case JsError(errors) => Future.successful(BadRequest(JsError.toJson(errors)))
+      }
+      case Failure(_)    => Future.successful(BadRequest)
+    }
+  }
+
+  def withJsonBody[T](reads: Reads[T])(f: T => Future[Result])(implicit request: Request[String]): Future[Result] = {
+    Try(DataSecurity.decryptString(request.body)) match {
+      case Success(result) => Json.parse(result).validate[T](reads) match {
+        case JsSuccess(t, _) => f(t)
+        case JsError(errors) => Future.successful(BadRequest(JsError.toJson(errors)))
       }
       case Failure(_)      =>
         Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}")
@@ -37,32 +48,28 @@ trait RequestParsers {
     }
   }
 
-  def decryptUrl(enc: String)(f: String => Future[Result])(implicit request: Request[_]): Future[Result] = {
+  def withEncryptedUrl(enc: String)(f: String => Future[Result]): Future[Result] = {
     Try(DataSecurity.decryptString(enc)) match {
-      case Success(data)  => f(data)
-      case Failure(_)     =>
-        Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}")
-        Future.successful(BadRequest)
+      case Success(result) => f(result)
+      case Failure(_)      => Future.successful(BadRequest)
     }
   }
 
-  def decryptUrlIntoType[T](enc: String)(reads: Reads[T])(f: T => Future[Result])(implicit request: Request[_]): Future[Result] = {
-    Try(DataSecurity.decryptIntoType[T](enc)(reads)) match {
-      case Success(result) => result match {
-        case JsSuccess(data, _) => f(data)
-        case errors: JsError    => Future.successful(BadRequest(JsError.toJson(errors)))
+  def withEncryptedUrlIntoType[T](enc: String)(f: T => Future[Result])(implicit reads: Reads[T]): Future[Result] = {
+    Try(DataSecurity.decryptString(enc)) match {
+      case Success(result) => Json.parse(result).validate[T](reads) match {
+        case JsSuccess(t, _) => f(t)
+        case JsError(errors) => Future.successful(BadRequest(JsError.toJson(errors)))
       }
-      case Failure(_) =>
-        Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}")
-        Future.successful(BadRequest)
+      case Failure(_) => Future.successful(BadRequest)
     }
   }
 
-  def withJsonBody[T](f: T => Future[Result])(implicit reads: Reads[T], manifest: Manifest[T], request: Request[_]): Future[Result] = {
-    Try(DataSecurity.decryptString(request.body.toString)) match {
-      case Success(data) => Json.parse(data).validate[T](reads) match {
-        case JsSuccess(ting, _) => f(ting)
-        case JsError(errors)    => Future.successful(BadRequest(s"Invalid ${manifest.runtimeClass.getSimpleName} errors: $errors"))
+  def withEncryptedUrlIntoType[T](enc: String, reads: Reads[T])(f: T => Future[Result]): Future[Result] = {
+    Try(DataSecurity.decryptString(enc)) match {
+      case Success(result) => Json.parse(result).validate[T](reads) match {
+        case JsSuccess(t, _) => f(t)
+        case JsError(errors) => Future.successful(BadRequest(JsError.toJson(errors)))
       }
       case Failure(_) => Future.successful(BadRequest)
     }
