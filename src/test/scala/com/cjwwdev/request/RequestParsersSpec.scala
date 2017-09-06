@@ -35,7 +35,7 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
   val testEncString: String = DataSecurity.encryptString("testString")
 
   val date = "$date"
-  final val now = new DateTime(DateTimeZone.UTC)
+  val now = new DateTime(DateTimeZone.UTC)
   val testModel = TestModel("testString", 616, now)
   val testEncModel: String = DataSecurity.encryptType[TestModel](testModel)
 
