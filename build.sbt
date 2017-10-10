@@ -12,8 +12,8 @@ scalaVersion := "2.11.11"
 organization := "com.cjww-dev.libs"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.play"      % "play_2.11"               % "2.5.16",
-  "com.cjww-dev.libs"      % "data-security_2.11"      % "2.7.0",
+  "com.typesafe.play"      % "play_2.11"               % "2.5.18",
+  "com.cjww-dev.libs"      % "data-security_2.11"      % "2.8.0",
   "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.1"
 )
 
