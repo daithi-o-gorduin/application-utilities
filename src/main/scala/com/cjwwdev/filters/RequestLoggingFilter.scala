@@ -18,11 +18,12 @@ package com.cjwwdev.filters
 import javax.inject.Inject
 
 import akka.stream.Materializer
-import org.apache.commons.lang3.time.FastDateFormat
 import org.joda.time.DateTimeUtils
 import org.slf4j.LoggerFactory
 import play.api.mvc.{Filter, RequestHeader, Result}
+import play.utils.Colors
 
+import scala.language.implicitConversions
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -30,17 +31,17 @@ class RequestLoggingFilter @Inject()(implicit val mat: Materializer) extends Fil
 
   val logger = LoggerFactory.getLogger("Logging filter")
 
-  private val dateFormat = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss.SSSZZ")
-
   override def apply(f: (RequestHeader) => Future[Result])(rh: RequestHeader): Future[Result] = {
     val result = f(rh)
     buildLoggerOutput(result, rh, DateTimeUtils.currentTimeMillis) map logger.info
     result
   }
 
+  implicit def numberToString[T](number: T): String = number.toString
+
   private def getElapsedTime(start: Long): Long = DateTimeUtils.currentTimeMillis - start
 
   private def buildLoggerOutput(result: Future[Result], rh: RequestHeader, start: Long): Future[String] = result map {
-    res => s"${rh.method.capitalize} request to ${rh.uri} returned a ${res.header.status} and took ${getElapsedTime(start)}"
+    res => s"${Colors.yellow(rh.method.capitalize)} request to ${Colors.green(rh.uri)} returned a ${Colors.cyan(res.header.status)} and took ${Colors.magenta(getElapsedTime(start))}ms"
   }
 }
