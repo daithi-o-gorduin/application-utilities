@@ -25,7 +25,6 @@ class JsonFormatsSpec extends PlaySpec with JsonFormats[TestModel] {
   override val standardFormat: OFormat[TestModel] = TestModel.standardFormat
 
   val now = new DateTime(DateTimeZone.UTC)
-  val date = "$date"
 
   val testModel = TestModel(
     string   = "testString",
@@ -39,7 +38,7 @@ class JsonFormatsSpec extends PlaySpec with JsonFormats[TestModel] {
       | "string" : "testString",
       | "int" : 616,
       | "dateTime" : {
-      |   "$date" : ${now.getMillis}
+      |   "$$date" : ${now.getMillis}
       | }
       |}
     """.stripMargin

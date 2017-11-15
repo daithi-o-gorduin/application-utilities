@@ -16,7 +16,7 @@
 package com.cjwwdev.request
 
 import com.cjwwdev.security.encryption.DataSecurity
-import play.api.Logger
+import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsError, JsSuccess, Json, Reads}
 import play.api.mvc.{Request, Result}
 import play.api.mvc.Results.BadRequest
@@ -24,15 +24,23 @@ import play.api.mvc.Results.BadRequest
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
+import scala.language.reflectiveCalls
+
 trait RequestParsers {
+
+  private val logger = LoggerFactory.getLogger(getClass)
 
   def withJsonBody[T](f: T => Future[Result])(implicit reads: Reads[T], request: Request[String]): Future[Result] = {
     Try(DataSecurity.decryptString(request.body)) match {
       case Success(result) => Json.parse(result).validate[T](reads) match {
         case JsSuccess(t, _) => f(t)
-        case JsError(errors) => Future.successful(BadRequest(JsError.toJson(errors)))
+        case JsError(errors) =>
+          logger.error(s"[withJsonBody] - Couldn't validate json as specified structure - ${Json.prettyPrint(JsError.toJson(errors))}")
+          Future.successful(BadRequest(JsError.toJson(errors)))
       }
-      case Failure(_)    => Future.successful(BadRequest)
+      case Failure(_) =>
+        logger.error(s"[withJsonBody] - decryption failed ${request.path}")
+        Future.successful(BadRequest)
     }
   }
 
@@ -40,10 +48,12 @@ trait RequestParsers {
     Try(DataSecurity.decryptString(request.body)) match {
       case Success(result) => Json.parse(result).validate[T](reads) match {
         case JsSuccess(t, _) => f(t)
-        case JsError(errors) => Future.successful(BadRequest(JsError.toJson(errors)))
+        case JsError(errors) =>
+          logger.error(s"Couldn't validate json as specified structure - ${Json.prettyPrint(JsError.toJson(errors))}")
+          Future.successful(BadRequest(JsError.toJson(errors)))
       }
       case Failure(_)      =>
-        Logger.error(s"[RequestParsers] - [decryptRequest] - decryption failed ${request.path}")
+        logger.error(s"[withJsonBody] - decryption failed ${request.path}")
         Future.successful(BadRequest)
     }
   }
@@ -51,7 +61,9 @@ trait RequestParsers {
   def withEncryptedUrl(enc: String)(f: String => Future[Result]): Future[Result] = {
     Try(DataSecurity.decryptString(enc)) match {
       case Success(result) => f(result)
-      case Failure(_)      => Future.successful(BadRequest)
+      case Failure(_)      =>
+        logger.error(s"[withJsonBody] - decryption failed")
+        Future.successful(BadRequest)
     }
   }
 
@@ -59,7 +71,9 @@ trait RequestParsers {
     Try(DataSecurity.decryptString(enc)) match {
       case Success(result) => Json.parse(result).validate[T](reads) match {
         case JsSuccess(t, _) => f(t)
-        case JsError(errors) => Future.successful(BadRequest(JsError.toJson(errors)))
+        case JsError(errors) =>
+          logger.error(s"Couldn't validate json as specified structure - ${Json.prettyPrint(JsError.toJson(errors))}")
+          Future.successful(BadRequest(JsError.toJson(errors)))
       }
       case Failure(_) => Future.successful(BadRequest)
     }
@@ -69,7 +83,9 @@ trait RequestParsers {
     Try(DataSecurity.decryptString(enc)) match {
       case Success(result) => Json.parse(result).validate[T](reads) match {
         case JsSuccess(t, _) => f(t)
-        case JsError(errors) => Future.successful(BadRequest(JsError.toJson(errors)))
+        case JsError(errors) =>
+          logger.error(s"Couldn't validate json as specified structure - ${Json.prettyPrint(JsError.toJson(errors))}")
+          Future.successful(BadRequest(JsError.toJson(errors)))
       }
       case Failure(_) => Future.successful(BadRequest)
     }

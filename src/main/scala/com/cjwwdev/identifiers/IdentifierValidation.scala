@@ -17,6 +17,7 @@ package com.cjwwdev.identifiers
 
 import java.util.UUID
 
+import org.slf4j.LoggerFactory
 import play.api.mvc.Result
 import play.api.mvc.Results.NotAcceptable
 
@@ -32,13 +33,18 @@ trait IdentifierValidation {
   val DIAG      = "diag"
   val DEVERSITY = "deversity"
 
+  private val logger = LoggerFactory.getLogger(getClass)
+
   def validateAs(prefix: String, id: String)(f: => Future[Result]): Future[Result] = {
     if(id.contains(prefix)) {
       Try(UUID.fromString(id.replace(s"$prefix-", ""))) match {
         case Success(_) => f
-        case Failure(_) => Future.successful(NotAcceptable)
+        case Failure(_) =>
+          logger.warn("[validateAs] - Given identifier was invalid")
+          Future.successful(NotAcceptable)
       }
     } else {
+      logger.warn("[validateAs] - Couldn't validate the given identifier against the specified prefix")
       Future.successful(NotAcceptable)
     }
   }

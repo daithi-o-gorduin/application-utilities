@@ -31,13 +31,13 @@ class RequestLoggingFilter @Inject()(implicit val mat: Materializer) extends Fil
 
   val logger = LoggerFactory.getLogger("Logging filter")
 
-  override def apply(f: (RequestHeader) => Future[Result])(rh: RequestHeader): Future[Result] = {
+  override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {
     val result = f(rh)
     buildLoggerOutput(result, rh, DateTimeUtils.currentTimeMillis) map logger.info
     result
   }
 
-  implicit def numberToString[T](number: T): String = number.toString
+  private implicit def numberToString[T](number: T): String = number.toString
 
   private def getElapsedTime(start: Long): Long = DateTimeUtils.currentTimeMillis - start
 
