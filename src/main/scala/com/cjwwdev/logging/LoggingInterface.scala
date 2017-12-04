@@ -13,6 +13,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package com.cjwwdev.logging
 
 import org.slf4j.Logger
@@ -32,15 +33,9 @@ trait LoggingInterface {
 class BackendLogging(className: Class[_]) extends LoggingInterface {
   override val logger = LoggerFactory.getLogger(className)
 
-  private def getSessionId(implicit request: Request[_]): String = request.headers.get("cookieId") match {
-    case Some(header) => s"session=[$header] "
-    case None         => "session=[INVALID SESSION] "
-  }
+  private def getSessionId(implicit request: Request[_]): String = request.headers.get("cookieId").fold("session=[INVALID SESSION] ")(header => s"session=[$header] ")
 
-  private def getAppId(implicit request: Request[_]): String = request.headers.get("appId") match {
-    case Some(header) => s"application=[$header] "
-    case None         => "application=[UNKNOWN APP] "
-  }
+  private def getAppId(implicit request: Request[_]): String = request.headers.get("appId").fold("application=[UNKNOWN APP] ")(header => s"application=[$header] ")
 
   override def trace(message: String)(implicit request: Request[_]): Unit = logger.trace(s"$getAppId$getSessionId$message")
   override def debug(message: String)(implicit request: Request[_]): Unit = logger.debug(s"$getAppId$getSessionId$message")

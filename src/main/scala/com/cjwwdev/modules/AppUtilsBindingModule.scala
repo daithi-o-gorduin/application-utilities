@@ -14,10 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.cjwwdev.json
+package com.cjwwdev.modules
 
-import play.api.libs.json.OFormat
+import com.cjwwdev.config.{ConfigurationLoader, ConfigurationLoaderImpl}
+import com.google.inject.AbstractModule
 
-trait JsonFormats[T] extends TimeFormat {
-  implicit val standardFormat: OFormat[T]
+class AppUtilsBindingModule extends AbstractModule {
+  override def configure(): Unit = {
+    bind(classOf[ConfigurationLoader]).to(classOf[ConfigurationLoaderImpl]).asEagerSingleton()
+  }
 }

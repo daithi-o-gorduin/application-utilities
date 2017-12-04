@@ -13,14 +13,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package com.cjwwdev.json
 
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json._
 
 trait TimeFormat {
-  implicit val dateTimeRead: Reads[DateTime] = (__ \ "$date").read[Long] map { dateTime =>
-    new DateTime(dateTime, DateTimeZone.UTC)
+  implicit val dateTimeRead: Reads[DateTime] = (__ \ "$date").read[Long] map {
+    new DateTime(_, DateTimeZone.UTC)
   }
 
   implicit val dateTimeWrite: Writes[DateTime] = new Writes[DateTime] {
