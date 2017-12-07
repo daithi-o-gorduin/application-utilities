@@ -22,14 +22,12 @@ import play.api.Configuration
 
 class MissingConfigurationException(msg: String) extends Exception(msg)
 
-class ConfigurationLoaderImpl @Inject()(val loadedConfig: Configuration) extends ConfigurationLoader {
-  val configRoot = "microservice.external-services"
-}
+class ConfigurationLoaderImpl @Inject()(val loadedConfig: Configuration) extends ConfigurationLoader
 
 trait ConfigurationLoader {
   val loadedConfig: Configuration
 
-  val configRoot: String
+  private val configRoot = "microservice.external-services"
 
   def buildServiceUrl(service: String): String = {
     loadedConfig.getString(s"$configRoot.$service.domain")
