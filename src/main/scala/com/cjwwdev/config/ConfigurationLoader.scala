@@ -16,26 +16,14 @@
 
 package com.cjwwdev.config
 
-import javax.inject.Inject
-
-import play.api.Configuration
-
-class MissingConfigurationException(msg: String) extends Exception(msg)
-
-class ConfigurationLoaderImpl @Inject()(val loadedConfig: Configuration) extends ConfigurationLoader
+import com.typesafe.config.ConfigFactory
 
 trait ConfigurationLoader {
-  val loadedConfig: Configuration
+  lazy val loadedConfig = ConfigFactory.load
 
   private val configRoot = "microservice.external-services"
 
-  def buildServiceUrl(service: String): String = {
-    loadedConfig.getString(s"$configRoot.$service.domain")
-      .getOrElse(throw new MissingConfigurationException(s"Cannot find domain for $service"))
-  }
+  def buildServiceUrl(service: String): String  = loadedConfig.getString(s"$configRoot.$service.domain")
 
-  def getApplicationId(service: String): String = {
-    loadedConfig.getString(s"$configRoot.$service.application-id")
-      .getOrElse(throw new MissingConfigurationException(s"Cannot find application id for $service"))
-  }
+  def getApplicationId(service: String): String = loadedConfig.getString(s"$configRoot.$service.application-id")
 }
