@@ -20,7 +20,10 @@ lazy val library = Project(libraryName, file("."))
     version                              :=  bTVersion,
     scalaVersion                         :=  "2.11.12",
     organization                         :=  "com.cjww-dev.libs",
-    resolvers                            +=  "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
+    resolvers                            ++= Seq(
+      "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
+      "cjww-dev" at "http://dl.bintray.com/cjww-development/releases"
+    ),
     libraryDependencies                  ++= dependencies,
     bintrayOrganization                  :=  Some("cjww-development"),
     bintrayReleaseOnPublish in ThisBuild :=  true,
