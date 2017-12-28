@@ -16,14 +16,18 @@
 
 package com.cjwwdev.config
 
-import com.typesafe.config.ConfigFactory
+import javax.inject.Inject
+
+import play.api.Configuration
+
+class ConfigurationLoaderImpl @Inject()(val loadedConfig: Configuration) extends ConfigurationLoader
 
 trait ConfigurationLoader {
-  lazy val loadedConfig = ConfigFactory.load
+  val loadedConfig: Configuration
 
   private val configRoot = "microservice.external-services"
 
-  def buildServiceUrl(service: String): String  = loadedConfig.getString(s"$configRoot.$service.domain")
+  def buildServiceUrl(service: String): String  = loadedConfig.underlying.getString(s"$configRoot.$service.domain")
 
-  def getApplicationId(service: String): String = loadedConfig.getString(s"$configRoot.$service.application-id")
+  def getApplicationId(service: String): String = loadedConfig.underlying.getString(s"$configRoot.$service.application-id")
 }
