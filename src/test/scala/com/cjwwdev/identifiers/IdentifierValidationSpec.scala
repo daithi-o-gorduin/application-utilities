@@ -96,6 +96,7 @@ class IdentifierValidationSpec extends PlaySpec {
           okFunction
         }
         status(result) mustBe NOT_ACCEPTABLE
+        contentAsString(result) mustBe s"Could not validate $id as a ${testValidator.CONTEXT} id"
       }
 
       "given something that looks like a UUID but contains characters above f" in {
@@ -104,6 +105,7 @@ class IdentifierValidationSpec extends PlaySpec {
           okFunction
         }
         status(result) mustBe NOT_ACCEPTABLE
+        contentAsString(result) mustBe s"$id is not a valid identifier"
       }
 
       "an id has an invalid prefix" in {
@@ -112,6 +114,7 @@ class IdentifierValidationSpec extends PlaySpec {
           okFunction
         }
         status(result) mustBe NOT_ACCEPTABLE
+        contentAsString(result) mustBe s"Could not validate $id as a ${testValidator.CONTEXT} id"
       }
 
       "some random string is presented" in {
@@ -120,6 +123,7 @@ class IdentifierValidationSpec extends PlaySpec {
           okFunction
         }
         status(result) mustBe NOT_ACCEPTABLE
+        contentAsString(result) mustBe s"Could not validate $id as a ${testValidator.CONTEXT} id"
       }
     }
   }

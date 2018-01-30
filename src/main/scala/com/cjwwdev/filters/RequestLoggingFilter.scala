@@ -19,18 +19,16 @@ package com.cjwwdev.filters
 import javax.inject.Inject
 
 import akka.stream.Materializer
+import com.cjwwdev.logging.Logging
 import org.joda.time.DateTimeUtils
-import org.slf4j.LoggerFactory
 import play.api.mvc.{Filter, RequestHeader, Result}
 import play.utils.Colors
 
-import scala.language.implicitConversions
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.language.implicitConversions
 
-class RequestLoggingFilter @Inject()(implicit val mat: Materializer) extends Filter {
-
-  val logger = LoggerFactory.getLogger("Logging filter")
+class RequestLoggingFilter @Inject()(implicit val mat: Materializer) extends Filter with Logging {
 
   override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {
     val result = f(rh)

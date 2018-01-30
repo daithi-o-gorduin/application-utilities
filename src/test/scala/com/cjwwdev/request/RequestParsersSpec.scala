@@ -83,7 +83,52 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
         }
 
         status(result) mustBe BAD_REQUEST
+        contentAsString(result) mustBe s"Couldn't decrypt request body on /"
       }
+    }
+  }
+
+  "withEncryptedUrl" should {
+    "decrypt the url and return an Ok" in {
+      val result = testParsers.withEncryptedUrl(DataSecurity.encryptString("testString")) { url =>
+        Future.successful(Ok(url))
+      }
+
+      status(result) mustBe OK
+      contentAsString(result) mustBe "testString"
+    }
+
+    "return a BadRequest when the url can't be decrypted" in {
+      val result = testParsers.withEncryptedUrl("testString") { url =>
+        Future.successful(Ok(url))
+      }
+
+      status(result) mustBe BAD_REQUEST
+      contentAsString(result) mustBe "Could not decrypt given url"
+    }
+  }
+
+  "withEncryptedUrlIntoType" should {
+    "decrypt the url into Type T" in {
+      implicit val request: FakeRequest[String] = FakeRequest().withBody("")
+
+      val enc = DataSecurity.encryptType[TestModel](testModel)
+
+      val result = testParsers.withEncryptedUrlIntoType(enc, TestModel.standardFormat) { data =>
+        okFunction(data)
+      }
+
+      status(result) mustBe OK
+    }
+
+    "return a BadRequest when the url can't be decrypted" in {
+      implicit val request: FakeRequest[String] = FakeRequest().withBody("")
+
+      val result = testParsers.withEncryptedUrlIntoType("testString", TestModel.standardFormat) { data =>
+        okFunction(data)
+      }
+
+      status(result) mustBe BAD_REQUEST
     }
   }
 }

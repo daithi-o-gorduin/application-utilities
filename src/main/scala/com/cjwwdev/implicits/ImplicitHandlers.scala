@@ -25,12 +25,12 @@ trait ImplicitHandlers {
     def encrypt: String = DataSecurity.encryptString(string)
     def decrypt: String = DataSecurity.decryptString(string)
 
-    def decryptType[T](implicit format: Format[T]): T =
-      DataSecurity.decryptIntoType[T](string)(format).get
+    def decryptType[T](implicit reads: Reads[T]): T =
+      DataSecurity.decryptIntoType[T](string)(reads).get
   }
 
-  implicit class ImplicitGenericTypeHandler[T](typeT: T)(implicit format: Format[T]) {
-    def encryptType: String = DataSecurity.encryptType[T](typeT)(format)
+  implicit class ImplicitGenericTypeHandler[T](typeT: T)(implicit writes: OWrites[T]) {
+    def encryptType: String = DataSecurity.encryptType[T](typeT)(writes)
   }
 
   implicit class ImplicitJsValueHandlers(jsValue: JsValue) {
