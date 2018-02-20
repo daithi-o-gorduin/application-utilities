@@ -28,11 +28,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.language.implicitConversions
 
-class RequestLoggingFilter @Inject()(implicit val mat: Materializer) extends Filter with Logging {
+class RequestLoggingFilterImpl @Inject()(implicit val mat: Materializer) extends RequestLoggingFilter
 
+trait RequestLoggingFilter extends Filter with Logging {
   override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {
     val result = f(rh)
-    buildLoggerOutput(result, rh, DateTimeUtils.currentTimeMillis) map logger.info
+    createLogMessage(result, rh, DateTimeUtils.currentTimeMillis()) map logger.info
     result
   }
 
@@ -40,7 +41,7 @@ class RequestLoggingFilter @Inject()(implicit val mat: Materializer) extends Fil
 
   private def getElapsedTime(start: Long): Long = DateTimeUtils.currentTimeMillis - start
 
-  private def buildLoggerOutput(result: Future[Result], rh: RequestHeader, start: Long): Future[String] = result map {
-    res => s"${Colors.yellow(rh.method.capitalize)} request to ${Colors.green(rh.uri)} returned a ${Colors.cyan(res.header.status)} and took ${Colors.magenta(getElapsedTime(start))}ms"
+  private def createLogMessage(result: Future[Result], rh: RequestHeader, start: Long): Future[String] = result map { res =>
+    s"${Colors.yellow(rh.method.capitalize)} request to ${Colors.green(rh.uri)} returned a ${Colors.cyan(res.header.status)} and took ${Colors.magenta(s"${getElapsedTime(start)}ms")}"
   }
 }

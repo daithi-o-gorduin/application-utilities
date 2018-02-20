@@ -26,12 +26,9 @@ val bTVersion : String = Try(ConfigFactory.load.getString("version")) match {
 
 val dependencies: Seq[ModuleID] = Seq(
   "com.typesafe.play"      % "play_2.11"               % "2.5.16",
-  "com.cjww-dev.libs"      % "data-security_2.11"      % "2.12.0",
   "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.1",
   "ch.qos.logback"         % "logback-classic"         % "1.2.3"
 )
-
-val configKeyBase = "microservice.data-security"
 
 lazy val library = Project(libraryName, file("."))
   .settings(
@@ -49,7 +46,7 @@ lazy val library = Project(libraryName, file("."))
     bintrayOmitLicense                   :=  true,
     fork                    in Test      :=  true,
     javaOptions             in Test      :=  Seq(
-      s"-D$configKeyBase.key=testKey",
-      s"-D$configKeyBase.salt=testSalt"
+      "-Ddata-security.key=testKey",
+      "-Ddata-security.salt=testSalt"
     )
   )

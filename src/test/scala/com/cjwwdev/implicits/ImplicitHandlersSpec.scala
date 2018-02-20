@@ -80,7 +80,7 @@ class ImplicitHandlersSpec extends PlaySpec {
       result mustBe "testString"
     }
 
-    "get should retrieve a value from the third level of a JsValue" in new ImplicitHandlers {
+    "get should retrieve a value from the third level of a JsObject" in new ImplicitHandlers {
       val testJsonThreeLevels = Json.parse(
         """
           |{
@@ -93,8 +93,26 @@ class ImplicitHandlersSpec extends PlaySpec {
         """.stripMargin
       )
 
-      val result = testJsonThreeLevels.getFromLevel[String]("level-1", "level-2", "third")
+      val result = testJsonThreeLevels.getFirstMatch[String]("third")//[String]("level-1", "level-2", "third")
       result mustBe "testString"
+    }
+
+    "get should retrieve the last matching value from anywhere in a JsObject" in new ImplicitHandlers {
+      val testJsonThreeLevels = Json.parse(
+        """
+          |{
+          | "level-1" : {
+          |   "int" : 1,
+          |   "level-2" : {
+          |     "int" : 2
+          |   }
+          | }
+          |}
+        """.stripMargin
+      )
+
+      val result = testJsonThreeLevels.getFirstMatch[Int]("int")//[String]("level-1", "level-2", "third")
+      result mustBe 1
     }
 
     "get should throw a NoSuchElementException" when {
