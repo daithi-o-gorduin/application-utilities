@@ -19,13 +19,15 @@ package com.cjwwdev.identifiers
 import java.util.UUID
 
 import com.cjwwdev.logging.Logging
-import play.api.mvc.Result
+import com.cjwwdev.responses.ApiResponse
+import play.api.mvc.{Request, Result}
 import play.api.mvc.Results.NotAcceptable
+import play.api.http.Status.NOT_ACCEPTABLE
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
-trait IdentifierValidation extends Logging {
+trait IdentifierValidation extends Logging with ApiResponse {
   val CONTEXT   = "context"
   val SESSION   = "session"
   val FEED_ITEM = "feed-item"
@@ -34,17 +36,21 @@ trait IdentifierValidation extends Logging {
   val DIAG      = "diag"
   val DEVERSITY = "deversity"
 
-  def validateAs(prefix: String, id: String)(f: => Future[Result]): Future[Result] = {
+  def validateAs(prefix: String, id: String)(f: => Future[Result])(implicit request: Request[_]): Future[Result] = {
     if(id.contains(prefix)) {
       Try(UUID.fromString(id.replace(s"$prefix-", ""))) match {
         case Success(_) => f
         case Failure(_) =>
           logger.warn("[validateAs] - Given identifier was invalid")
-          Future.successful(NotAcceptable(s"$id is not a valid identifier"))
+          withJsonResponseBody(NOT_ACCEPTABLE, s"$id is not a valid identifier") { json =>
+            NotAcceptable(json)
+          }
       }
     } else {
       logger.warn("[validateAs] - Couldn't validate the given identifier against the specified prefix")
-      Future.successful(NotAcceptable(s"Could not validate $id as a $prefix id"))
+      withJsonResponseBody(NOT_ACCEPTABLE, s"Could not validate $id as a $prefix id") { json =>
+        NotAcceptable(json)
+      }
     }
   }
 }

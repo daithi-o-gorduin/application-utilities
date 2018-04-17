@@ -35,6 +35,8 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
 
   val testEncString: String = DataSecurity.encryptString("testString")
 
+  implicit val request = FakeRequest()
+
   val now                  = new DateTime(DateTimeZone.UTC)
   val testModel            = TestModel("testString", 616, now)
   val testEncModel: String = DataSecurity.encryptType[TestModel](testModel)
@@ -83,7 +85,7 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
         }
 
         status(result) mustBe BAD_REQUEST
-        contentAsString(result) mustBe s"Couldn't decrypt request body on /"
+        contentAsJson(result).\("errorBody").as[String] mustBe s"Couldn't decrypt request body on /"
       }
     }
   }
@@ -104,7 +106,7 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
       }
 
       status(result) mustBe BAD_REQUEST
-      contentAsString(result) mustBe "Could not decrypt given url"
+      contentAsJson(result).\("errorBody").as[String] mustBe "Could not decrypt given url"
     }
   }
 

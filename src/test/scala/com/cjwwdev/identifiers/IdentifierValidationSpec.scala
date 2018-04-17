@@ -21,12 +21,15 @@ import java.util.UUID
 import org.scalatestplus.play.PlaySpec
 import play.api.mvc.Result
 import play.api.mvc.Results.Ok
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
 import scala.concurrent.Future
 
 class IdentifierValidationSpec extends PlaySpec {
   val testValidator = new IdentifierValidation {}
+
+  implicit val request = FakeRequest()
 
   def okFunction: Future[Result] = Future.successful(Ok)
 
@@ -96,7 +99,7 @@ class IdentifierValidationSpec extends PlaySpec {
           okFunction
         }
         status(result) mustBe NOT_ACCEPTABLE
-        contentAsString(result) mustBe s"Could not validate $id as a ${testValidator.CONTEXT} id"
+        contentAsJson(result).\("errorBody").as[String] mustBe s"Could not validate $id as a ${testValidator.CONTEXT} id"
       }
 
       "given something that looks like a UUID but contains characters above f" in {
@@ -105,7 +108,7 @@ class IdentifierValidationSpec extends PlaySpec {
           okFunction
         }
         status(result) mustBe NOT_ACCEPTABLE
-        contentAsString(result) mustBe s"$id is not a valid identifier"
+        contentAsJson(result).\("errorBody").as[String] mustBe s"$id is not a valid identifier"
       }
 
       "an id has an invalid prefix" in {
@@ -114,7 +117,7 @@ class IdentifierValidationSpec extends PlaySpec {
           okFunction
         }
         status(result) mustBe NOT_ACCEPTABLE
-        contentAsString(result) mustBe s"Could not validate $id as a ${testValidator.CONTEXT} id"
+        contentAsJson(result).\("errorBody").as[String] mustBe s"Could not validate $id as a ${testValidator.CONTEXT} id"
       }
 
       "some random string is presented" in {
@@ -123,7 +126,7 @@ class IdentifierValidationSpec extends PlaySpec {
           okFunction
         }
         status(result) mustBe NOT_ACCEPTABLE
-        contentAsString(result) mustBe s"Could not validate $id as a ${testValidator.CONTEXT} id"
+        contentAsJson(result).\("errorBody").as[String] mustBe s"Could not validate $id as a ${testValidator.CONTEXT} id"
       }
     }
   }

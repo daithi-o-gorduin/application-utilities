@@ -40,21 +40,6 @@ trait ImplicitHandlers {
     def getFirstMatch[T](key: String)(implicit reads: Reads[T]): T = jsValue.\\(key).headOption.collect {
       case x: JsValue if x.validate[T].isSuccess => x.as[T]
     }.getOrElse(throw new NoSuchElementException(s"No data found for key '$key'"))
-
-//    def getFromLevel[T](keys: String*)(implicit reads: Reads[T]): T = {
-//      def leftOrRight(json: JsValue, int: Int): T = json.\(keys(int)).validate[T] match {
-//        case JsSuccess(x,_) => x
-//        case JsError(_)     => leftOrRight(json.get[JsValue](keys(int)),int+1)
-//      }
-//      leftOrRight(jsValue, int = 0)
-//    }
-//    def getFromLevel2[T](keys: String*)(implicit reads: Reads[T]): T = {
-//      def leftOrRight(json: JsValue, keys: Seq[String]): T = json.\\(keys.head).validate[T] match {
-//        case JsSuccess(x,_) => x
-//        case JsError(_)     => leftOrRight(json.get[JsValue](keys.head), keys.tail)
-//      }
-//      leftOrRight(jsValue, keys)
-//    }
   }
 
   implicit class JsLookupResultExtensions(lookupResult: JsLookupResult) {
