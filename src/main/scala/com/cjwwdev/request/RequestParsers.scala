@@ -25,6 +25,7 @@ import play.api.mvc.Results.BadRequest
 import play.api.http.Status.BAD_REQUEST
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Try}
 import scala.language.reflectiveCalls
 
@@ -38,14 +39,14 @@ trait RequestParsers extends ApiResponse {
         case JsSuccess(typeT,_) => f(typeT)
         case JsError(errors)    =>
           logger.error(s"Couldn't validate json as specified structure - ${Json.prettyPrint(JsError.toJson(errors))}")
-          withJsonResponseBody(BAD_REQUEST, JsError.toJson(errors), "Couldn't validate json as specified structure") { json =>
-            BadRequest(json)
+          withFutureJsonResponseBody(BAD_REQUEST, JsError.toJson(errors), "Couldn't validate json as specified structure") { json =>
+            Future(BadRequest(json))
           }
       }
       case Failure(_) =>
         logger.error(s"Couldn't decrypt request body on ${request.path}")
-        withJsonResponseBody(BAD_REQUEST, s"Couldn't decrypt request body on ${request.path}") { json =>
-          BadRequest(json)
+        withFutureJsonResponseBody(BAD_REQUEST, s"Couldn't decrypt request body on ${request.path}") { json =>
+          Future(BadRequest(json))
         }
     }
   }
@@ -55,8 +56,8 @@ trait RequestParsers extends ApiResponse {
       case Success(result) => f(result)
       case Failure(_)      =>
         logger.error(s"[withJsonBody] - decryption failed")
-        withJsonResponseBody(BAD_REQUEST, "Could not decrypt given url") { json =>
-          BadRequest(json)
+        withFutureJsonResponseBody(BAD_REQUEST, "Could not decrypt given url") { json =>
+          Future(BadRequest(json))
         }
     }
   }
@@ -67,14 +68,14 @@ trait RequestParsers extends ApiResponse {
         case JsSuccess(typeT,_) => f(typeT)
         case JsError(errors)    =>
           logger.error(s"Couldn't validate json as specified structure - ${Json.prettyPrint(JsError.toJson(errors))}")
-          withJsonResponseBody(BAD_REQUEST, JsError.toJson(errors), "Couldn't validate json as specified structure") { json =>
-            BadRequest(json)
+          withFutureJsonResponseBody(BAD_REQUEST, JsError.toJson(errors), "Couldn't validate json as specified structure") { json =>
+            Future(BadRequest(json))
           }
       }
       case Failure(_) =>
         logger.error(s"Couldn't decrypt request on ${request.path}")
-        withJsonResponseBody(BAD_REQUEST, s"Couldn't decrypt request body on ${request.path}") { json =>
-          BadRequest(json)
+        withFutureJsonResponseBody(BAD_REQUEST, s"Couldn't decrypt request body on ${request.path}") { json =>
+          Future(BadRequest(json))
         }
     }
   }

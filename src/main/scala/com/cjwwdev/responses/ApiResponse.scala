@@ -21,7 +21,6 @@ import play.api.libs.json.{JsObject, JsString, JsValue, Json}
 import play.api.mvc.{Request, Result}
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.implicitConversions
 
 trait ApiResponse {
@@ -43,20 +42,21 @@ trait ApiResponse {
     )
   )
 
-  def withJsonResponseBody(statusCode: Int, body: JsValue)(jsBody: JsValue => Result)(implicit request: Request[_]): Future[Result] = {
-    val bodyKey = if(statusCode.isBetween(200 to 299)) "body" else "errorBody"
-    Future(jsBody(requestProperties(statusCode) ++ Json.obj(bodyKey -> body) ++ requestStats))
+  private val bodyKey: Int => String = statusCode => if(statusCode.isBetween(200 to 299)) "body" else "errorMessage"
+
+  def withJsonResponseBody(statusCode: Int, body: JsValue)(result: JsValue => Result)(implicit request: Request[_]): Result = {
+    result(requestProperties(statusCode) ++ Json.obj(bodyKey(statusCode) -> body) ++ requestStats)
   }
 
-  def withJsonResponseBody(statusCode: Int, body: JsValue, errorMessage: String)
-                          (result: JsValue => Result)
-                          (implicit request: Request[_]): Future[Result] = {
-    Future(result(requestProperties(statusCode) ++
-      Json.obj(
-        "errorMessage" -> errorMessage,
-        "errorBody"    -> body
-      ) ++
-      requestStats
-    ))
+  def withJsonResponseBody(statusCode: Int, body: JsValue, errorMessage: String)(result: JsValue => Result)(implicit request: Request[_]): Result = {
+    result(requestProperties(statusCode) ++ Json.obj("errorMessage" -> errorMessage, "errorBody" -> body) ++ requestStats)
+  }
+
+  def withFutureJsonResponseBody(statusCode: Int, body: JsValue)(result: JsValue => Future[Result])(implicit request: Request[_]): Future[Result] = {
+    result(requestProperties(statusCode) ++ Json.obj(bodyKey(statusCode) -> body) ++ requestStats)
+  }
+
+  def withFutureJsonResponseBody(statusCode: Int, body: JsValue, errorMessage: String)(result: JsValue => Future[Result])(implicit request: Request[_]): Future[Result] = {
+    result(requestProperties(statusCode) ++ Json.obj("errorMessage" -> errorMessage, "errorBody" -> body) ++ requestStats)
   }
 }

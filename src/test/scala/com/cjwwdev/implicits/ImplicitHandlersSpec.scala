@@ -18,6 +18,8 @@ package com.cjwwdev.implicits
 
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{Json, OFormat}
+import com.cjwwdev.implicits.ImplicitDataSecurity._
+import com.cjwwdev.implicits.ImplicitJsValues._
 
 class ImplicitHandlersSpec extends PlaySpec {
 
@@ -30,12 +32,12 @@ class ImplicitHandlersSpec extends PlaySpec {
   )
 
   "ImplicitDataSecurityHandlers" should {
-    "encrypt a string" in new ImplicitHandlers {
+    "encrypt a string" in {
       val result = "testString".encrypt
       assert(result != "testString")
     }
 
-    "decrypt a string" in new ImplicitHandlers {
+    "decrypt a string" in {
       val enc = "testString".encrypt
       val result = enc.decrypt
 
@@ -43,23 +45,23 @@ class ImplicitHandlersSpec extends PlaySpec {
       assert(result == "testString")
     }
 
-    "decrypt into a given type" in new ImplicitHandlers {
+    "decrypt into a given type" in {
       val enc = testModel.encryptType
-      val result = enc.decryptType[TestModel]
+      val result = enc.decryptIntoType[TestModel]
 
       enc.getClass mustBe classOf[String]
       result mustBe testModel
     }
 
-    "fail decryption into a given type" in new ImplicitHandlers {
+    "fail decryption into a given type" in {
       val enc = testModel.encryptType
 
-      intercept[NoSuchElementException](enc.decryptType[Int])
+      intercept[NoSuchElementException](enc.decryptIntoType[Int])
     }
   }
 
   "ImplicitGenericTypeHandler" should {
-    "encrypt a given type" in new ImplicitHandlers {
+    "encrypt a given type" in {
       val result = testModel.encryptType
       result.getClass mustBe classOf[String]
       assert(result != testModel.toString)
@@ -70,17 +72,17 @@ class ImplicitHandlersSpec extends PlaySpec {
     val testJson     = Json.parse("""{"string" : "testString"}""")
     val testJsObject = Json.obj("string" -> "testString")
 
-    "get should retrieve a value from the first level of a JsValue" in new ImplicitHandlers {
+    "get should retrieve a value from the first level of a JsValue" in {
       val result = testJson.get[String]("string")
       result mustBe "testString"
     }
 
-    "get should retrieve a value from the first level of a JsObject" in new ImplicitHandlers {
+    "get should retrieve a value from the first level of a JsObject" in {
       val result = testJsObject.get[String]("string")
       result mustBe "testString"
     }
 
-    "get should retrieve a value from the third level of a JsObject" in new ImplicitHandlers {
+    "get should retrieve a value from the third level of a JsObject" in {
       val testJsonThreeLevels = Json.parse(
         """
           |{
@@ -97,7 +99,7 @@ class ImplicitHandlersSpec extends PlaySpec {
       result mustBe "testString"
     }
 
-    "get should retrieve the last matching value from anywhere in a JsObject" in new ImplicitHandlers {
+    "get should retrieve the last matching value from anywhere in a JsObject" in {
       val testJsonThreeLevels = Json.parse(
         """
           |{
@@ -116,18 +118,18 @@ class ImplicitHandlersSpec extends PlaySpec {
     }
 
     "get should throw a NoSuchElementException" when {
-      "getting from a JsValue" in new ImplicitHandlers {
+      "getting from a JsValue" in {
         intercept[NoSuchElementException](testJson.get[String]("invalidKey"))
       }
 
-      "getting from a JsObject" in new ImplicitHandlers {
+      "getting from a JsObject" in {
         intercept[NoSuchElementException](testJsObject.get[String]("invalidKey"))
       }
     }
   }
 
   "ImplicitJsLookupResultHandlers" should {
-    "getOrThrow should return a type if Json validation has succeeded" in new ImplicitHandlers {
+    "getOrThrow should return a type if Json validation has succeeded" in {
       val testJson = Json.parse(
         """
           |{
@@ -141,7 +143,7 @@ class ImplicitHandlersSpec extends PlaySpec {
       result mustBe "testString"
     }
 
-    "throw an error if Json validation has failed" in new ImplicitHandlers {
+    "throw an error if Json validation has failed" in {
       val testJson = Json.parse(
         """
           |{
