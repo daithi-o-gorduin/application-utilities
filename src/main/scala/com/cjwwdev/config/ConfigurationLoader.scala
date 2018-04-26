@@ -30,6 +30,4 @@ trait ConfigurationLoader {
   def buildServiceUrl(service: String): String  = loadedConfig.underlying.getString(s"$configRoot.$service.domain")
 
   def getApplicationId(service: String): String = loadedConfig.underlying.getString(s"$configRoot.$service.application-id")
-
-  def getConfigAs[T](configPath: String): T = loadedConfig.underlying.g
 }
