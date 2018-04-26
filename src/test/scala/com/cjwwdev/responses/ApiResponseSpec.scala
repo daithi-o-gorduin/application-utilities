@@ -17,41 +17,70 @@
 package com.cjwwdev.responses
 
 import org.scalatestplus.play.PlaySpec
-import play.api.libs.json.{JsString, Json}
+import play.api.libs.json.{JsString, JsValue, Json}
+import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.mvc.Results.{Ok, InternalServerError, BadRequest}
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class ApiResponseSpec extends PlaySpec {
   object TestResponse extends ApiResponse
 
   implicit val request = FakeRequest()
 
-  "jsonResponse" should {
-    "a successful ApiResponse" in {
-      val result = contentAsJson(TestResponse.withJsonResponseBody(OK, JsString("test"))(x => Ok(x)))
+  "withJsonResponseBody" should {
+    "construct and return a result with a successful json response body" in {
+      val result = contentAsJson(Future(TestResponse.withJsonResponseBody(OK, JsString("test"))(x => Ok(x))))
       result.\("uri").as[String]    mustBe "/"
       result.\("method").as[String] mustBe "GET"
       result.\("status").as[Int]    mustBe OK
       result.\("body").as[String]   mustBe "test"
     }
 
-    "an unsuccessful ApiResponse (INS)" in {
-      val result = contentAsJson(TestResponse.withJsonResponseBody(INTERNAL_SERVER_ERROR, JsString("test"))(x => InternalServerError(x)))
+    "construct and return a result with a unsuccessful json response body" in {
+      val result = contentAsJson(Future(TestResponse.withJsonResponseBody(INTERNAL_SERVER_ERROR, JsString("test"))(x => Ok(x))))
       result.\("uri").as[String]          mustBe "/"
       result.\("method").as[String]       mustBe "GET"
       result.\("status").as[Int]          mustBe INTERNAL_SERVER_ERROR
-      result.\("errorBody").as[String]    mustBe "test"
+      result.\("errorMessage").as[String] mustBe "test"
     }
 
-    "an unsuccessful ApiResponse (BAD REQUEST)" in {
-      val result = contentAsJson(TestResponse.withJsonResponseBody(BAD_REQUEST, JsString("test"))(x => BadRequest(x)))
+    "construct and return a result with a unsuccessful json response body with extra errorBody" in {
+      val result = contentAsJson(Future(TestResponse.withJsonResponseBody(BAD_REQUEST, Json.obj("reason" -> "test"), "test")(x => Ok(x))))
       result.\("uri").as[String]          mustBe "/"
       result.\("method").as[String]       mustBe "GET"
       result.\("status").as[Int]          mustBe BAD_REQUEST
-      result.\("errorBody").as[String]    mustBe "test"
+      result.\("errorMessage").as[String] mustBe "test"
+      result.\("errorBody").as[JsValue]   mustBe Json.parse("""{ "reason" : "test" }""")
+    }
+  }
+
+  "withFutureJsonResponseBody" should {
+    "construct and return a result with a successful json response body" in {
+      val result = contentAsJson(TestResponse.withFutureJsonResponseBody(OK, JsString("test"))(x => Future(Ok(x))))
+      result.\("uri").as[String]    mustBe "/"
+      result.\("method").as[String] mustBe "GET"
+      result.\("status").as[Int]    mustBe OK
+      result.\("body").as[String]   mustBe "test"
+    }
+
+    "construct and return a result with a unsuccesful json response body" in {
+      val result = contentAsJson(TestResponse.withFutureJsonResponseBody(INTERNAL_SERVER_ERROR, JsString("test"))(x => Future(Ok(x))))
+      result.\("uri").as[String]          mustBe "/"
+      result.\("method").as[String]       mustBe "GET"
+      result.\("status").as[Int]          mustBe INTERNAL_SERVER_ERROR
+      result.\("errorMessage").as[String] mustBe "test"
+    }
+
+    "construct and return a result with a unsuccessful json response body with extra errorBody" in {
+      val result = contentAsJson(TestResponse.withFutureJsonResponseBody(BAD_REQUEST, Json.obj("reason" -> "test"), "test")(x => Future(Ok(x))))
+      result.\("uri").as[String]          mustBe "/"
+      result.\("method").as[String]       mustBe "GET"
+      result.\("status").as[Int]          mustBe BAD_REQUEST
+      result.\("errorMessage").as[String] mustBe "test"
+      result.\("errorBody").as[JsValue]   mustBe Json.parse("""{ "reason" : "test" }""")
     }
   }
 }
