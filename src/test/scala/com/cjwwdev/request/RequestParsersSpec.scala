@@ -85,7 +85,7 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
         }
 
         status(result) mustBe BAD_REQUEST
-        contentAsJson(result).\("errorBody").as[String] mustBe s"Couldn't decrypt request body on /"
+        contentAsJson(result).\("errorMessage").as[String] mustBe s"Couldn't decrypt request body on /"
       }
     }
   }
@@ -106,7 +106,7 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
       }
 
       status(result) mustBe BAD_REQUEST
-      contentAsJson(result).\("errorBody").as[String] mustBe "Could not decrypt given url"
+      contentAsJson(result).\("errorMessage").as[String] mustBe "Could not decrypt given url"
     }
   }
 

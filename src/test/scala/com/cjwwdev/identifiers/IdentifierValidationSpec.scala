@@ -99,7 +99,7 @@ class IdentifierValidationSpec extends PlaySpec {
           okFunction
         }
         status(result) mustBe NOT_ACCEPTABLE
-        contentAsJson(result).\("errorBody").as[String] mustBe s"Could not validate $id as a ${testValidator.CONTEXT} id"
+        contentAsJson(result).\("errorMessage").as[String] mustBe s"Could not validate $id as a ${testValidator.CONTEXT} id"
       }
 
       "given something that looks like a UUID but contains characters above f" in {
@@ -108,7 +108,7 @@ class IdentifierValidationSpec extends PlaySpec {
           okFunction
         }
         status(result) mustBe NOT_ACCEPTABLE
-        contentAsJson(result).\("errorBody").as[String] mustBe s"$id is not a valid identifier"
+        contentAsJson(result).\("errorMessage").as[String] mustBe s"$id is not a valid identifier"
       }
 
       "an id has an invalid prefix" in {
@@ -117,7 +117,7 @@ class IdentifierValidationSpec extends PlaySpec {
           okFunction
         }
         status(result) mustBe NOT_ACCEPTABLE
-        contentAsJson(result).\("errorBody").as[String] mustBe s"Could not validate $id as a ${testValidator.CONTEXT} id"
+        contentAsJson(result).\("errorMessage").as[String] mustBe s"Could not validate $id as a ${testValidator.CONTEXT} id"
       }
 
       "some random string is presented" in {
@@ -126,7 +126,7 @@ class IdentifierValidationSpec extends PlaySpec {
           okFunction
         }
         status(result) mustBe NOT_ACCEPTABLE
-        contentAsJson(result).\("errorBody").as[String] mustBe s"Could not validate $id as a ${testValidator.CONTEXT} id"
+        contentAsJson(result).\("errorMessage").as[String] mustBe s"Could not validate $id as a ${testValidator.CONTEXT} id"
       }
     }
   }

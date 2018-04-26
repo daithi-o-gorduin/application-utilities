@@ -16,24 +16,10 @@
 
 package com.cjwwdev.implicits
 
-import com.cjwwdev.security.encryption.DataSecurity
 import play.api.libs.json._
 
-trait ImplicitHandlers {
-
-  implicit class ImplicitDataSecurityHandlers(string: String) {
-    def encrypt: String = DataSecurity.encryptString(string)
-    def decrypt: String = DataSecurity.decryptString(string)
-
-    def decryptType[T](implicit reads: Reads[T]): T =
-      DataSecurity.decryptIntoType[T](string)(reads).get
-  }
-
-  implicit class ImplicitGenericTypeHandler[T](typeT: T)(implicit writes: OWrites[T]) {
-    def encryptType: String = DataSecurity.encryptType[T](typeT)(writes)
-  }
-
-  implicit class ImplicitJsValueHandlers(jsValue: JsValue) {
+object ImplicitJsValues {
+  implicit class JsValueOps(jsValue: JsValue) {
     def get[T](key: String)(implicit reads: Reads[T]): T = jsValue.\(key).getOrThrow(new NoSuchElementException(s"No data found for key '$key'"))
     def getOption[T](key: String)(implicit reads: Reads[T]): Option[T] = jsValue.\(key).asOpt[T]
 
