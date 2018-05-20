@@ -28,7 +28,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.language.implicitConversions
 
-class RequestLoggingFilterImpl @Inject()(implicit val mat: Materializer) extends RequestLoggingFilter
+class DefaultRequestLoggingFilter @Inject()(implicit val mat: Materializer) extends RequestLoggingFilter
 
 trait RequestLoggingFilter extends Filter with Logging {
   override def apply(f: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] = {

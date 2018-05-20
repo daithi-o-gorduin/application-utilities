@@ -24,7 +24,7 @@ trait TimeFormat {
     new DateTime(_, DateTimeZone.UTC)
   }
 
-  implicit val dateTimeWrite: Writes[DateTime] = new Writes[DateTime] {
-    def writes(dateTime: DateTime): JsValue = Json.obj("$date" -> dateTime.getMillis)
+  implicit val dateTimeWrite: Writes[DateTime] = Writes[DateTime] {
+    dateTime => Json.obj("$date" -> dateTime.getMillis)
   }
 }

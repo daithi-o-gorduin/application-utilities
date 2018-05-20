@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 import play.api.Configuration
 
-class ConfigurationLoaderImpl @Inject()(val loadedConfig: Configuration) extends ConfigurationLoader
+class DefaultConfigurationLoader @Inject()(val loadedConfig: Configuration) extends ConfigurationLoader
 
 trait ConfigurationLoader {
   val loadedConfig: Configuration
