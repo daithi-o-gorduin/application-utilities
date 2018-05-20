@@ -25,15 +25,15 @@ val bTVersion : String = Try(ConfigFactory.load.getString("version")) match {
 }
 
 val dependencies: Seq[ModuleID] = Seq(
-  "com.typesafe.play"      % "play_2.11"               % "2.5.16",
-  "org.scalatestplus.play" % "scalatestplus-play_2.11" % "2.0.1",
-  "ch.qos.logback"         % "logback-classic"         % "1.2.3"
+  "com.typesafe.play"       % "play_2.12"           % "2.6.13",
+  "org.scalatestplus.play" %% "scalatestplus-play"  % "3.1.2"   % Test,
+  "ch.qos.logback"          % "logback-classic"     % "1.2.3"
 )
 
 lazy val library = Project(libraryName, file("."))
   .settings(
     version                              :=  bTVersion,
-    scalaVersion                         :=  "2.11.12",
+    scalaVersion                         :=  "2.12.6",
     organization                         :=  "com.cjww-dev.libs",
     resolvers                            ++= Seq(
       "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",

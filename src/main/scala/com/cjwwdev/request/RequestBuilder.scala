@@ -16,23 +16,18 @@
 
 package com.cjwwdev.request
 
-import java.security.cert.X509Certificate
-
+import play.api.libs.typedmap.TypedMap
+import play.api.mvc.request.{RemoteConnection, RequestTarget}
 import play.api.mvc.{Headers, Request, RequestHeader}
 
 trait RequestBuilder {
   def buildNewRequest[T](requestHeader : RequestHeader, requestBody : T) : Request[T] = new Request[T] {
-    override def body: T                                              = requestBody
-    override def secure: Boolean                                      = requestHeader.secure
-    override def uri: String                                          = requestHeader.uri
-    override def queryString: Map[String, Seq[String]]                = requestHeader.queryString
-    override def remoteAddress: String                                = requestHeader.remoteAddress
-    override def method: String                                       = requestHeader.method
-    override def headers: Headers                                     = requestHeader.headers
-    override def path: String                                         = requestHeader.path
-    override def clientCertificateChain: Option[Seq[X509Certificate]] = requestHeader.clientCertificateChain
-    override def version: String                                      = requestHeader.version
-    override def tags: Map[String, String]                            = requestHeader.tags
-    override def id: Long                                             = requestHeader.id
+    override def body: T                      = requestBody
+    override def connection: RemoteConnection = requestHeader.connection
+    override def method: String               = requestHeader.method
+    override def target: RequestTarget        = requestHeader.target
+    override def version: String              = requestHeader.version
+    override def headers: Headers             = requestHeader.headers
+    override def attrs: TypedMap              = requestHeader.attrs
   }
 }

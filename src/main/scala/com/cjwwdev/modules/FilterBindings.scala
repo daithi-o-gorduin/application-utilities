@@ -16,11 +16,12 @@
 
 package com.cjwwdev.modules
 
-import com.cjwwdev.filters.{RequestLoggingFilter, RequestLoggingFilterImpl}
-import com.google.inject.AbstractModule
+import com.cjwwdev.filters.{RequestLoggingFilter, DefaultRequestLoggingFilter}
+import play.api.{Configuration, Environment}
+import play.api.inject.{Binding, Module}
 
-class FilterBindings extends AbstractModule {
-  override def configure(): Unit = {
-    bind(classOf[RequestLoggingFilter]).to(classOf[RequestLoggingFilterImpl]).asEagerSingleton()
-  }
+class FilterBindings extends Module {
+  override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = Seq(
+    bind(classOf[RequestLoggingFilter]).to(classOf[DefaultRequestLoggingFilter]).eagerly()
+  )
 }
