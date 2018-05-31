@@ -19,8 +19,8 @@ package com.cjwwdev.scheduling
 import akka.actor.ActorSystem
 import com.cjwwdev.logging.Logging
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 
 sealed trait JobCompletionStatus
 case object JobComplete extends JobCompletionStatus

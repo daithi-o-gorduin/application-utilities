@@ -16,7 +16,7 @@
 
 package com.cjwwdev.implicits
 
-import com.cjwwdev.security.encryption.DataSecurity
+import com.cjwwdev.security.encryption.{DataSecurity, SHA512}
 import play.api.libs.json.{Reads, Writes}
 
 object ImplicitDataSecurity {
@@ -25,6 +25,8 @@ object ImplicitDataSecurity {
     def decrypt: String = DataSecurity.decryptString(string)
 
     def decryptIntoType[T](implicit reads: Reads[T]): T = DataSecurity.decryptIntoType(string)(reads).get
+
+    def sha512: String = SHA512.encrypt(string)
   }
 
   implicit class GenericOps[T](typeT: T)(implicit writes: Writes[T]) {

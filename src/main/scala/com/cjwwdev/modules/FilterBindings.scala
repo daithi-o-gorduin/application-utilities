@@ -16,9 +16,9 @@
 
 package com.cjwwdev.modules
 
-import com.cjwwdev.filters.{RequestLoggingFilter, DefaultRequestLoggingFilter}
-import play.api.{Configuration, Environment}
+import com.cjwwdev.filters.{DefaultRequestLoggingFilter, RequestLoggingFilter}
 import play.api.inject.{Binding, Module}
+import play.api.{Configuration, Environment}
 
 class FilterBindings extends Module {
   override def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = Seq(

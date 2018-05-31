@@ -16,10 +16,10 @@
 
 package com.cjwwdev.implicits
 
-import org.scalatestplus.play.PlaySpec
-import play.api.libs.json.{Json, OFormat}
 import com.cjwwdev.implicits.ImplicitDataSecurity._
 import com.cjwwdev.implicits.ImplicitJsValues._
+import org.scalatestplus.play.PlaySpec
+import play.api.libs.json.{Json, OFormat}
 
 class ImplicitHandlersSpec extends PlaySpec {
 
@@ -57,6 +57,13 @@ class ImplicitHandlersSpec extends PlaySpec {
       val enc = testModel.encryptType
 
       intercept[NoSuchElementException](enc.decryptIntoType[Int])
+    }
+
+    "encrypt a string using SHA512" in {
+      val enc = "testString".sha512
+
+      assert(enc != "testString")
+      enc.length mustBe 128
     }
   }
 

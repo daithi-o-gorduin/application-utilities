@@ -24,8 +24,10 @@ val bTVersion : String = Try(ConfigFactory.load.getString("version")) match {
   case Failure(_)   => "0.1.0"
 }
 
+val playImports: Seq[ModuleID] = Seq(guice)
+
 val dependencies: Seq[ModuleID] = Seq(
-  "com.typesafe.play"       % "play_2.12"           % "2.6.13",
+  "com.typesafe.play"       % "play_2.12"           % "2.6.15",
   "org.scalatestplus.play" %% "scalatestplus-play"  % "3.1.2"   % Test,
   "ch.qos.logback"          % "logback-classic"     % "1.2.3"
 )
@@ -39,7 +41,7 @@ lazy val library = Project(libraryName, file("."))
       "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/",
       "cjww-dev"            at "http://dl.bintray.com/cjww-development/releases"
     ),
-    libraryDependencies                  ++= dependencies,
+    libraryDependencies                  ++= dependencies ++ playImports,
     bintrayOrganization                  :=  Some("cjww-development"),
     bintrayReleaseOnPublish in ThisBuild :=  true,
     bintrayRepository                    :=  "releases",

@@ -16,9 +16,10 @@
 
 package com.cjwwdev.request
 
-import com.cjwwdev.fixtures.{TestModel, TestModelTwo}
+import java.time.LocalDateTime
+
+import com.cjwwdev.fixtures.TestModel
 import com.cjwwdev.security.encryption.DataSecurity
-import org.joda.time.{DateTime, DateTimeZone}
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{Format, Json}
@@ -37,7 +38,7 @@ class RequestParsersSpec extends PlaySpec with GuiceOneAppPerSuite {
 
   implicit val request = FakeRequest()
 
-  val now                  = new DateTime(DateTimeZone.UTC)
+  val now                  = LocalDateTime.now
   val testModel            = TestModel("testString", 616, now)
   val testEncModel: String = DataSecurity.encryptType[TestModel](testModel)
 

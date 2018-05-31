@@ -22,8 +22,8 @@ import play.api.mvc.Results.Ok
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class ApiResponseSpec extends PlaySpec {
   object TestResponse extends ApiResponse

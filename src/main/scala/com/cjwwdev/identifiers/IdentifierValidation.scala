@@ -20,12 +20,12 @@ import java.util.UUID
 
 import com.cjwwdev.logging.Logging
 import com.cjwwdev.responses.ApiResponse
-import play.api.mvc.{Request, Result}
-import play.api.mvc.Results.NotAcceptable
 import play.api.http.Status.NOT_ACCEPTABLE
+import play.api.mvc.Results.NotAcceptable
+import play.api.mvc.{Request, Result}
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.util.{Failure, Success, Try}
 
 trait IdentifierValidation extends Logging with ApiResponse {
