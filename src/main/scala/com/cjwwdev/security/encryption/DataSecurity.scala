@@ -18,10 +18,10 @@ package com.cjwwdev.security.encryption
 
 import java.security.MessageDigest
 import java.util
-import javax.crypto.Cipher
-import javax.crypto.spec.SecretKeySpec
 
 import com.typesafe.config.ConfigFactory
+import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 import org.apache.commons.codec.binary.Base64
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsResult, Json, Reads, Writes}

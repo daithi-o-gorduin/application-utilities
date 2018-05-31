@@ -19,15 +19,15 @@ package com.cjwwdev.request
 import com.cjwwdev.responses.ApiResponse
 import com.cjwwdev.security.encryption.DataSecurity
 import org.slf4j.LoggerFactory
-import play.api.libs.json.{JsError, JsSuccess, Json, Reads}
-import play.api.mvc.{Request, Result}
-import play.api.mvc.Results.BadRequest
 import play.api.http.Status.BAD_REQUEST
+import play.api.libs.json.{JsError, JsSuccess, Json, Reads}
+import play.api.mvc.Results.BadRequest
+import play.api.mvc.{Request, Result}
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.Future
 import scala.language.reflectiveCalls
+import scala.util.{Failure, Success, Try}
 
 trait RequestParsers extends ApiResponse {
 

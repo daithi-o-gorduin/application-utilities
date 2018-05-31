@@ -16,18 +16,19 @@
 
 package com.cjwwdev.fixtures
 
+import java.time.LocalDateTime
+
 import com.cjwwdev.json.TimeFormat
-import org.joda.time.DateTime
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-case class TestModel(string: String, int: Int, dateTime: DateTime)
+case class TestModel(string: String, int: Int, dateTime: LocalDateTime)
 
 object TestModel extends TimeFormat {
   implicit val standardFormat: OFormat[TestModel] = (
     (__ \ "string").format[String] and
     (__ \ "int").format[Int] and
-    (__ \ "dateTime").format[DateTime](dateTimeRead)(dateTimeWrite)
+    (__ \ "dateTime").format[LocalDateTime](dateTimeReadLDT)(dateTimeWriteLDT)
   )(TestModel.apply, unlift(TestModel.unapply))
 }
 

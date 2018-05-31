@@ -17,7 +17,6 @@
 package com.cjwwdev.config
 
 import javax.inject.Inject
-
 import play.api.Configuration
 
 class DefaultConfigurationLoader @Inject()(val loadedConfig: Configuration) extends ConfigurationLoader

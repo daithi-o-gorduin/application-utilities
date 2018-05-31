@@ -16,10 +16,9 @@
 
 package com.cjwwdev.filters
 
-import javax.inject.Inject
-
 import akka.stream.Materializer
 import com.cjwwdev.logging.Logging
+import javax.inject.Inject
 import org.joda.time.DateTimeUtils
 import play.api.mvc.{Filter, RequestHeader, Result}
 import play.utils.Colors

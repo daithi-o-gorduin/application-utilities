@@ -23,8 +23,8 @@ import play.api.mvc.Results.{InternalServerError, NotFound, Redirect, Status}
 import play.api.mvc.{Call, Request, RequestHeader, Result}
 import play.twirl.api.Html
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 trait FrontendRequestErrorHandler extends HttpErrorHandler with RequestBuilder with Logging {
 
